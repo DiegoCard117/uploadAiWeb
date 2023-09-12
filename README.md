@@ -24,12 +24,12 @@ Certifique-se de ter as seguintes ferramentas e recursos instalados em seu siste
 1. Clone este repositório:**
 
    ```bash
-   git clone https://github.com/seu-usuario/UploadIa.git
+   https://github.com/DiegoCard117/uploadAiWeb.git
 
 2. Navegue até o diretório do projeto:
 
    ```bash
-   cd UploadIa
+   cd uploadAiWeb
    
 3. Instale as dependências:
 
