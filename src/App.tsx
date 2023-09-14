@@ -7,8 +7,33 @@ import { Button } from "./components/ui/button";
 import { Select, SelectItem, SelectValue, SelectTrigger, SelectContent } from "./components/ui/select";
 import { Slider } from "./components/ui/slider";
 import { VideoInputForm } from "./components/video-input-form";
+import { PromptSelect } from "./components/prompt-select";
+import { useState } from "react";
+import { useCompletion } from 'ai/react';
 
 export function App() {
+
+  const [temperature, setTemperature] = useState(0.5);
+  const [videoId, setVideoId] = useState<string | null>(null);
+
+
+  const {
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit,
+    completion,
+    isLoading
+   } = useCompletion({
+    api: 'http://localhost:3333/ai/complete',
+    body: {
+      videoId,
+      temperature,
+    },
+    headers: {
+      'Content-type': 'application/json'
+    }
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,29 +55,24 @@ export function App() {
             <Textarea
               className="resize-none p-4 leading-relaxed"
               placeholder="Inclua o prompt para a IA..."
+              value={input}
+              onChange={handleInputChange}
             />
             <Textarea
               className="resize-none p-4 leading-relaxed"
               placeholder="Resultado gerado pela IA" readOnly
+              value={completion}
             />
           </div>
           <p className="text-sm text-muted-foreground">Lembre-se: você pode utilizar a variavel <code className="text-red-400">{'{transcription}'}</code> no seu prompt para adicionar o conteúdo da transcrição do vídeo selecionado</p>
         </div>
         <aside className="w-80 space-y-6">
-          <VideoInputForm/>
+          <VideoInputForm onVideoUploaded={setVideoId} />
           <Separator />
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label>Prompt</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um Prompt"/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="title">Descrição do Youtube</SelectItem>
-                  <SelectItem value="description">Título do YouTube</SelectItem>
-                </SelectContent>
-              </Select>
+              <PromptSelect onPromptSelected={setInput} />
               <span className="block text-xs text-muted-foreground italic">Você poderá customizar essa opção em breve</span>
             </div>
 
@@ -66,7 +86,7 @@ export function App() {
                   <SelectItem value="gpt3.5">GPT 3.5-Turbo 16k</SelectItem>
                 </SelectContent>
               </Select>
-            </div> 
+            </div>
             <Separator />
             <div className="space-y-4">
               <Label>Temperatura</Label>
@@ -74,11 +94,14 @@ export function App() {
                 min={0}
                 max={1}
                 step={0.1}
+                value={[temperature]}
+                onValueChange={value => setTemperature(value[0])}
               />
               <span className="block text-xs text-muted-foreground italic leading-relaxed">Valores mais altos tendem a deixar o resultado mais criativo e com possíveis erros</span>
             </div>
             <Separator />
             <Button
+              disabled={isLoading}
               type="submit"
               className="w-full"
             >
